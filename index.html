@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ALTURA — Propiedades extraordinarias</title>
+<meta name="description" content="Propiedades seleccionadas para quienes buscan algo más que un hogar. Villas y residencias de lujo en República Dominicana.">
+<meta property="og:title" content="ALTURA — Propiedades extraordinarias">
+<meta property="og:description" content="Propiedades seleccionadas para quienes buscan algo más que un hogar. Villas y residencias de lujo en República Dominicana.">
+<meta property="og:image" content="https://altura.example.com/assets/img/villa-aurelia/terrace-living-sunset.jpg">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+</head>
+<body>
+
+<nav class="topnav">
+  <a href="index.html" class="brand">ALTURA</a>
+  <div class="links">
+    <a href="propiedades.html">Propiedades</a>
+    <a href="agentes.html">Agentes</a>
+    <a href="nosotros.html">Nosotros</a>
+    <a href="contacto.html">Contacto</a>
+  </div>
+  <a class="btn btn-sm btn-fill" href="contacto.html">Agendar cita</a>
+  <button class="hamburger" id="hamburgerBtn" aria-label="Abrir menú" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<div class="mobile-menu" id="mobileMenu"></div>
+
+<div class="page-loader"><div class="mark">ALTURA</div></div>
+
+<div data-barba="wrapper">
+<main data-barba="container" data-barba-namespace="home">
+
+  <section class="hero">
+    <div class="hero-img" data-parallax="18" data-parallax-wrap style="background-image:url('assets/img/villa-aurelia/terrace-living-sunset.jpg'); background-size:cover; background-position:center;" role="img" aria-label="Terraza de una villa de lujo con vista al mar al atardecer"></div>
+    <div class="hero-content">
+      <div class="eyebrow"><span>Altura Real Estate</span></div>
+      <h1 class="hero-title" id="heroTitle">
+        <span class="line"><span>Encuentra una propiedad</span></span>
+        <span class="line"><span>extraordinaria.</span></span>
+      </h1>
+      <p class="hero-sub" id="heroSub">Propiedades seleccionadas para quienes buscan algo más que un hogar.</p>
+      <div class="hero-ctas" id="heroCtas">
+        <a class="btn btn-fill" href="propiedades.html">Explorar propiedades</a>
+        <a class="btn btn-outline" href="contacto.html">Agendar una cita</a>
+      </div>
+      <form class="hero-search" id="heroSearch" action="propiedades.html" method="get">
+        <div class="hero-search-field">
+          <label>Operación</label>
+          <select name="estado">
+            <option value="">Comprar o alquilar</option>
+            <option value="venta">Comprar</option>
+            <option value="alquiler">Alquilar</option>
+          </select>
+        </div>
+        <div class="hero-search-field">
+          <label>Ubicación</label>
+          <select name="ubicacion">
+            <option value="">Cualquiera</option>
+            <option value="Punta Cana">Punta Cana</option>
+            <option value="Santo Domingo">Santo Domingo</option>
+            <option value="Las Terrenas">Las Terrenas</option>
+            <option value="Bávaro">Bávaro</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-fill hero-search-btn">Buscar</button>
+      </form>
+    </div>
+    <div class="scroll-cue"><span>Scroll</span><div class="line"></div></div>
+  </section>
+
+  <section class="pin-section">
+    <div class="pin-media">
+      <div class="pin-img" data-parallax="8" style="background-image:url('assets/img/villa-aurelia/outdoor-dining.jpg'); background-size:cover; background-position:center;" role="img" aria-label="Zona de comedor exterior junto a la piscina"></div>
+      <div class="pin-overlay"></div>
+      <div class="pin-text">
+        <div class="eyebrow reveal">Descubre</div>
+        <h2 class="reveal">Propiedades extraordinarias</h2>
+        <p class="reveal">Desde villas privadas frente al mar hasta residencias contemporáneas en las zonas más exclusivas del país.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="h-scroll-wrap">
+    <div class="h-scroll-sticky">
+      <div class="h-scroll-header">
+        <div class="eyebrow" style="margin-bottom:12px;">Selección actual</div>
+        <h2>Propiedades destacadas</h2>
+      </div>
+      <div class="h-track" id="hTrack">
+        <a href="propiedad-villa-aurelia.html" class="h-card">
+          <div class="h-card-media" style="background-image:url('assets/img/villa-aurelia/exterior-facade.jpg'); background-size:cover; background-position:center;" role="img" aria-label="Fachada de Villa Aurelia"></div><div class="h-card-overlay"></div>
+          <div class="h-card-status">Venta</div>
+          <div class="h-card-info">
+            <div class="name">Villa Aurelia</div>
+            <div class="loc">Punta Cana, República Dominicana</div>
+            <div class="h-card-meta"><span>5 hab</span><span>5.5 baños</span><span>420 m²</span></div>
+            <div class="h-card-price">US$ 1,450,000</div>
+          </div>
+        </a>
+        <a href="propiedades.html" class="h-card">
+          <div class="h-card-media"></div><div class="h-card-overlay"></div>
+          <div class="h-card-status">Alquiler</div>
+          <div class="h-card-info">
+            <div class="name">Penthouse Skyline</div>
+            <div class="loc">Santo Domingo</div>
+            <div class="h-card-meta"><span>3 hab</span><span>3.5 baños</span><span>220 m²</span></div>
+            <div class="h-card-price">US$ 2,500 /mes</div>
+          </div>
+        </a>
+        <a href="propiedades.html" class="h-card">
+          <div class="h-card-media"></div><div class="h-card-overlay"></div>
+          <div class="h-card-status">Venta</div>
+          <div class="h-card-info">
+            <div class="name">Casa Moderna Las Terrenas</div>
+            <div class="loc">Las Terrenas, República Dominicana</div>
+            <div class="h-card-meta"><span>4 hab</span><span>3 baños</span><span>280 m²</span></div>
+            <div class="h-card-price">US$ 620,000</div>
+          </div>
+        </a>
+        <a href="propiedades.html" class="h-card">
+          <div class="h-card-media"></div><div class="h-card-overlay"></div>
+          <div class="h-card-status">Venta</div>
+          <div class="h-card-info">
+            <div class="name">Residencia Altavista</div>
+            <div class="loc">Bávaro, República Dominicana</div>
+            <div class="h-card-meta"><span>5 hab</span><span>5 baños</span><span>400 m²</span></div>
+            <div class="h-card-price">US$ 1,200,000</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="stats-section">
+    <div class="eyebrow">Experiencia Altura</div>
+    <h2 class="serif reveal" style="font-size:clamp(28px,3.4vw,42px); margin-top:20px;">Resultados que hablan por sí solos</h2>
+    <div class="stats-grid">
+      <div class="stat reveal"><div class="num" data-count="500" data-suffix="+">0</div><div class="label">Propiedades vendidas</div></div>
+      <div class="stat reveal"><div class="num" data-count="300" data-suffix="+">0</div><div class="label">Clientes satisfechos</div></div>
+      <div class="stat reveal"><div class="num" data-count="5" data-suffix="">0</div><div class="label">Años de experiencia</div></div>
+      <div class="stat reveal"><div class="num" data-count="12" data-suffix="" data-count-source="agents">0</div><div class="label">Agentes especializados</div></div>
+    </div>
+  </section>
+
+  <section class="final-cta">
+    <div class="final-cta-img" data-parallax="15" style="background-image:url('assets/img/villa-aurelia/aerial-pool-sunset.jpg'); background-size:cover; background-position:center;" role="img" aria-label="Vista aérea de Villa Aurelia con piscina al atardecer"></div>
+    <div class="final-cta-content">
+      <h2 class="reveal">Tu próxima propiedad comienza aquí.</h2>
+      <p class="reveal">Permítenos ayudarte a encontrar el lugar que estás buscando.</p>
+      <div class="final-cta-ctas reveal">
+        <a class="btn btn-fill" href="contacto.html">Agendar una cita</a>
+        <a class="btn btn-outline" href="agentes.html">Conocer a los agentes</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="brand serif" style="font-size:22px;">ALTURA</div>
+      <p style="color:var(--ivory-dim); font-size:14px; margin-top:16px; max-width:32ch;">Propiedades seleccionadas para quienes buscan algo más que un hogar.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Sitio</h4>
+      <a href="propiedades.html">Propiedades</a>
+      <a href="agentes.html">Agentes</a>
+      <a href="nosotros.html">Nosotros</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contacto</h4>
+      <a href="mailto:hola@altura.com">hola@altura.com</a>
+      <a href="tel:+18095550123">+1 809 555 0123</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 ALTURA — proyecto de portafolio</span>
+    <a href="privacidad.html" style="color:var(--ivory-dim);">Política de privacidad</a>
+  </div>
+</footer>
+
+<script src="assets/js/vendor/gsap.min.js"></script>
+<script src="assets/js/vendor/ScrollTrigger.min.js"></script>
+<script src="assets/js/vendor/lenis.min.js"></script>
+<script src="assets/js/vendor/barba.umd.js"></script>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

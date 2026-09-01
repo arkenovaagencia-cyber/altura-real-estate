@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://altura.example.com/index.html</loc><priority>1.0</priority></url>
+  <url><loc>https://altura.example.com/propiedades.html</loc><priority>0.9</priority></url>
+  <url><loc>https://altura.example.com/propiedad-villa-aurelia.html</loc><priority>0.8</priority></url>
+  <url><loc>https://altura.example.com/propiedad-villa-cap-cana.html</loc><priority>0.8</priority></url>
+  <url><loc>https://altura.example.com/propiedad-penthouse-skyline.html</loc><priority>0.7</priority></url>
+  <url><loc>https://altura.example.com/propiedad-casa-moderna-las-terrenas.html</loc><priority>0.7</priority></url>
+  <url><loc>https://altura.example.com/propiedad-residencia-altavista.html</loc><priority>0.7</priority></url>
+  <url><loc>https://altura.example.com/propiedad-apartamento-malecon.html</loc><priority>0.7</priority></url>
+  <url><loc>https://altura.example.com/agentes.html</loc><priority>0.6</priority></url>
+  <url><loc>https://altura.example.com/agente-perfil.html</loc><priority>0.5</priority></url>
+  <url><loc>https://altura.example.com/nosotros.html</loc><priority>0.6</priority></url>
+  <url><loc>https://altura.example.com/contacto.html</loc><priority>0.6</priority></url>
+  <url><loc>https://altura.example.com/privacidad.html</loc><priority>0.3</priority></url>
+</urlset>

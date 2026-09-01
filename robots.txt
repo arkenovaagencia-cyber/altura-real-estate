@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://altura.example.com/sitemap.xml

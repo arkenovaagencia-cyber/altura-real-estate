@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel administrativo — ALTURA</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/style.css">
+<style>
+  body{ min-height:100vh; }
+  .admin-wrap{ display:none; min-height:100vh; padding:110px 6vw 80px; }
+  .admin-wrap.visible{ display:block; }
+  .login-wrap{ min-height:100vh; display:flex; align-items:center; justify-content:center; padding:0 6vw; }
+  .login-box{ width:100%; max-width:380px; }
+  .login-box h1{ font-family:'Cormorant Garamond', serif; font-weight:400; font-size:30px; margin-bottom:8px; }
+  .login-box p{ color:var(--ivory-dim); font-size:14px; margin-bottom:36px; }
+  .login-error{ color:#e08a8a; font-size:13px; margin-top:14px; display:none; }
+  .login-error.show{ display:block; }
+
+  .admin-header{ display:flex; justify-content:space-between; align-items:center; margin-bottom:44px; flex-wrap:wrap; gap:16px; }
+  .admin-header h1{ font-family:'Cormorant Garamond', serif; font-weight:400; font-size:32px; }
+  .admin-tabs{ display:flex; gap:2px; margin-bottom:40px; border-bottom:1px solid var(--line); }
+  .admin-tab{ padding:14px 26px; font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ivory-dim); cursor:pointer; border-bottom:2px solid transparent; }
+  .admin-tab.active{ color:var(--gold); border-color:var(--gold); }
+  .admin-panel{ display:none; }
+  .admin-panel.active{ display:block; }
+
+  .admin-table{ width:100%; border-collapse:collapse; margin-bottom:50px; }
+  .admin-table th{ text-align:left; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--gold); padding:10px 12px; border-bottom:1px solid var(--line-strong); }
+  .admin-table td{ padding:10px 12px; border-bottom:1px solid var(--line); font-size:14px; vertical-align:middle; }
+  .admin-table input, .admin-table select{
+    background:var(--navy-2); border:1px solid var(--line); color:var(--ivory);
+    font-family:'Inter'; font-size:13px; padding:8px 10px; width:100%; min-width:90px;
+  }
+  .admin-row-actions{ display:flex; gap:8px; white-space:nowrap; }
+  .admin-btn{ font-size:11px; padding:8px 14px; border:1px solid var(--gold); color:var(--gold); background:none; cursor:pointer; letter-spacing:0.04em; }
+  .admin-btn:hover{ background:var(--gold); color:var(--navy); }
+  .admin-btn.danger{ border-color:#e08a8a; color:#e08a8a; }
+  .admin-btn.danger:hover{ background:#e08a8a; color:var(--navy); }
+  .admin-btn.primary{ background:var(--gold); color:var(--navy); }
+
+  .new-row-form{ background:var(--navy-2); padding:24px; margin-bottom:16px; display:grid; grid-template-columns:repeat(auto-fill, minmax(160px,1fr)); gap:12px; }
+  .new-row-form label{ display:block; font-size:10px; color:var(--ivory-dim); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:6px; }
+  .new-row-form input, .new-row-form select{
+    background:var(--navy); border:1px solid var(--line); color:var(--ivory); font-family:'Inter'; font-size:13px; padding:9px 10px; width:100%;
+  }
+  .status-msg{ font-size:12px; margin-top:10px; min-height:16px; }
+  .status-msg.ok{ color:#8ac9a0; }
+  .status-msg.err{ color:#e08a8a; }
+  .overflow-x{ overflow-x:auto; }
+</style>
+</head>
+<body>
+
+<!-- ---------- Pantalla de login ---------- -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <div class="eyebrow" style="margin-bottom:14px;">ALTURA</div>
+    <h1>Panel administrativo</h1>
+    <p>Inicia sesión para gestionar propiedades, agentes y mensajes.</p>
+    <form id="loginForm">
+      <div class="form-field">
+        <label>Correo</label>
+        <input type="email" id="loginEmail" required>
+      </div>
+      <div class="form-field">
+        <label>Contraseña</label>
+        <input type="password" id="loginPassword" required>
+      </div>
+      <button class="btn btn-fill" type="submit" style="width:100%; margin-top:10px;">Entrar</button>
+      <p class="login-error" id="loginError">Correo o contraseña incorrectos.</p>
+    </form>
+  </div>
+</div>
+
+<!-- ---------- Panel (visible tras iniciar sesión) ---------- -->
+<div class="admin-wrap" id="adminWrap">
+  <div class="admin-header">
+    <h1>Panel administrativo</h1>
+    <button class="admin-btn" id="logoutBtn">Cerrar sesión</button>
+  </div>
+
+  <div class="admin-tabs">
+    <div class="admin-tab active" data-tab="propiedades">Propiedades</div>
+    <div class="admin-tab" data-tab="agentes">Agentes</div>
+    <div class="admin-tab" data-tab="mensajes">Mensajes</div>
+  </div>
+
+  <!-- Propiedades -->
+  <div class="admin-panel active" id="panel-propiedades">
+    <button class="admin-btn" id="showNewPropertyForm" style="margin-bottom:20px;">+ Nueva propiedad</button>
+    <div class="new-row-form" id="newPropertyForm" style="display:none;">
+      <div><label>Slug (para la URL)</label><input type="text" id="np-slug" placeholder="villa-ejemplo"></div>
+      <div><label>Nombre</label><input type="text" id="np-name"></div>
+      <div><label>Ubicación</label><input type="text" id="np-location"></div>
+      <div><label>Estado</label><select id="np-status"><option value="venta">Venta</option><option value="alquiler">Alquiler</option></select></div>
+      <div><label>Precio</label><input type="number" id="np-price"></div>
+      <div><label>Tipo</label><input type="text" id="np-type" placeholder="villa, casa, penthouse..."></div>
+      <div><label>Habitaciones</label><input type="number" id="np-bedrooms"></div>
+      <div><label>Baños</label><input type="number" id="np-bathrooms" step="0.5"></div>
+      <div><label>m²</label><input type="number" id="np-area"></div>
+      <div style="grid-column:1/-1;"><label>Ruta de la foto (ej. assets/img/.../foto.jpg)</label><input type="text" id="np-image"></div>
+      <div style="grid-column:1/-1; display:flex; gap:10px; align-items:center;">
+        <button class="admin-btn primary" id="createPropertyBtn">Crear propiedad</button>
+        <span class="status-msg" id="newPropertyStatus"></span>
+      </div>
+    </div>
+    <div class="overflow-x">
+      <table class="admin-table" id="propertiesTable">
+        <thead><tr><th>Nombre</th><th>Ubicación</th><th>Estado</th><th>Precio</th><th>Hab</th><th>Baños</th><th>m²</th><th>Foto (ruta)</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Agentes -->
+  <div class="admin-panel" id="panel-agentes">
+    <button class="admin-btn" id="showNewAgentForm" style="margin-bottom:20px;">+ Nuevo agente</button>
+    <div class="new-row-form" id="newAgentForm" style="display:none;">
+      <div><label>Slug (para la URL)</label><input type="text" id="na-slug" placeholder="nombre-apellido"></div>
+      <div><label>Nombre</label><input type="text" id="na-name"></div>
+      <div><label>Rol</label><input type="text" id="na-role" placeholder="Asesor de inversión"></div>
+      <div><label>Ventas</label><input type="number" id="na-sales" value="0"></div>
+      <div><label>Años exp.</label><input type="number" id="na-years" value="0"></div>
+      <div><label>Satisfacción %</label><input type="number" id="na-satisfaction" value="90"></div>
+      <div style="grid-column:1/-1;"><label>Ruta de la foto</label><input type="text" id="na-photo"></div>
+      <div style="grid-column:1/-1; display:flex; gap:10px; align-items:center;">
+        <button class="admin-btn primary" id="createAgentBtn">Crear agente</button>
+        <span class="status-msg" id="newAgentStatus"></span>
+      </div>
+    </div>
+    <div class="overflow-x">
+      <table class="admin-table" id="agentsTable">
+        <thead><tr><th>Nombre</th><th>Rol</th><th>Ventas</th><th>Años</th><th>Satisfacción %</th><th>Foto (ruta)</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Mensajes -->
+  <div class="admin-panel" id="panel-mensajes">
+    <div class="overflow-x">
+      <table class="admin-table" id="messagesTable">
+        <thead><tr><th>Fecha</th><th>Nombre</th><th>Correo</th><th>Motivo</th><th>Mensaje</th><th>Estado</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://vojacdebepkgxxrueqgl.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvamFjZGViZXBrZ3h4cnVlcWdsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc1NDE0MDYsImV4cCI6MjEwMzExNzQwNn0.E7JtG5-Qb1CkxaXNzWlMdmY1zmV50-50VRG3RpUUGsg';
+
+function getSession(){
+  const raw = localStorage.getItem('altura_admin_session');
+  return raw ? JSON.parse(raw) : null;
+}
+function setSession(session){ localStorage.setItem('altura_admin_session', JSON.stringify(session)); }
+function clearSession(){ localStorage.removeItem('altura_admin_session'); }
+
+async function apiCall(path, options = {}){
+  const session = getSession();
+  const res = await fetch(`${SUPABASE_URL}${path}`, {
+    ...options,
+    headers: {
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${session ? session.access_token : SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+    }
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Error ${res.status}: ${text}`);
+  }
+  const contentType = res.headers.get('content-type') || '';
+  return contentType.includes('json') ? res.json() : null;
+}
+
+/* ---------- Login ---------- */
+document.getElementById('loginForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  const errorEl = document.getElementById('loginError');
+  errorEl.classList.remove('show');
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    if (!res.ok) throw new Error('Credenciales inválidas');
+    const data = await res.json();
+    setSession(data);
+    showAdmin();
+  } catch (err) {
+    errorEl.classList.add('show');
+  }
+});
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  clearSession();
+  document.getElementById('adminWrap').classList.remove('visible');
+  document.getElementById('loginWrap').style.display = 'flex';
+});
+
+function showAdmin(){
+  document.getElementById('loginWrap').style.display = 'none';
+  document.getElementById('adminWrap').classList.add('visible');
+  loadProperties();
+  loadAgents();
+  loadMessages();
+}
+
+if (getSession()) showAdmin();
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll('.admin-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+/* ---------- Propiedades ---------- */
+async function loadProperties(){
+  const tbody = document.querySelector('#propertiesTable tbody');
+  tbody.innerHTML = '<tr><td colspan="9">Cargando…</td></tr>';
+  try {
+    const rows = await apiCall('/rest/v1/properties?select=*&order=name.asc');
+    tbody.innerHTML = rows.map(p => `
+      <tr data-id="${p.id}">
+        <td><input value="${p.name || ''}" data-field="name"></td>
+        <td><input value="${p.location || ''}" data-field="location"></td>
+        <td><select data-field="status"><option value="venta" ${p.status==='venta'?'selected':''}>Venta</option><option value="alquiler" ${p.status==='alquiler'?'selected':''}>Alquiler</option></select></td>
+        <td><input type="number" value="${p.price || 0}" data-field="price"></td>
+        <td><input type="number" value="${p.bedrooms || 0}" data-field="bedrooms"></td>
+        <td><input type="number" step="0.5" value="${p.bathrooms || 0}" data-field="bathrooms"></td>
+        <td><input type="number" value="${p.area_m2 || 0}" data-field="area_m2"></td>
+        <td><input value="${p.hero_image_url || ''}" data-field="hero_image_url"></td>
+        <td><div class="admin-row-actions">
+          <button class="admin-btn save-property">Guardar</button>
+          <button class="admin-btn danger delete-property">Borrar</button>
+        </div></td>
+      </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="9" style="color:#e08a8a;">Error cargando propiedades: ${err.message}</td></tr>`;
+  }
+}
+
+document.querySelector('#propertiesTable tbody').addEventListener('click', async (e) => {
+  const row = e.target.closest('tr');
+  if (!row) return;
+  const id = row.dataset.id;
+
+  if (e.target.classList.contains('save-property')) {
+    const payload = {};
+    row.querySelectorAll('[data-field]').forEach(el => payload[el.dataset.field] = el.tagName === 'SELECT' ? el.value : (el.type === 'number' ? Number(el.value) : el.value));
+    try {
+      await apiCall(`/rest/v1/properties?id=eq.${id}`, { method: 'PATCH', headers: { 'Prefer': 'return=minimal' }, body: JSON.stringify(payload) });
+      e.target.textContent = 'Guardado ✓';
+      setTimeout(() => e.target.textContent = 'Guardar', 1500);
+    } catch (err) { alert('No se pudo guardar: ' + err.message); }
+  }
+
+  if (e.target.classList.contains('delete-property')) {
+    if (!confirm('¿Borrar esta propiedad? No se puede deshacer.')) return;
+    try {
+      await apiCall(`/rest/v1/properties?id=eq.${id}`, { method: 'DELETE' });
+      row.remove();
+    } catch (err) { alert('No se pudo borrar: ' + err.message); }
+  }
+});
+
+document.getElementById('showNewPropertyForm').addEventListener('click', () => {
+  const form = document.getElementById('newPropertyForm');
+  form.style.display = form.style.display === 'none' ? 'grid' : 'none';
+});
+
+document.getElementById('createPropertyBtn').addEventListener('click', async () => {
+  const statusEl = document.getElementById('newPropertyStatus');
+  const payload = {
+    slug: document.getElementById('np-slug').value.trim(),
+    name: document.getElementById('np-name').value.trim(),
+    location: document.getElementById('np-location').value.trim(),
+    status: document.getElementById('np-status').value,
+    price: Number(document.getElementById('np-price').value) || 0,
+    property_type: document.getElementById('np-type').value.trim(),
+    bedrooms: Number(document.getElementById('np-bedrooms').value) || 0,
+    bathrooms: Number(document.getElementById('np-bathrooms').value) || 0,
+    area_m2: Number(document.getElementById('np-area').value) || 0,
+    hero_image_url: document.getElementById('np-image').value.trim() || null,
+  };
+  if (!payload.slug || !payload.name) {
+    statusEl.textContent = 'El slug y el nombre son obligatorios.';
+    statusEl.className = 'status-msg err';
+    return;
+  }
+  try {
+    await apiCall('/rest/v1/properties', { method: 'POST', headers: { 'Prefer': 'return=minimal' }, body: JSON.stringify(payload) });
+    statusEl.textContent = 'Propiedad creada ✓ — recuerda crear su página propiedad-' + payload.slug + '.html si aún no existe.';
+    statusEl.className = 'status-msg ok';
+    loadProperties();
+  } catch (err) {
+    statusEl.textContent = 'Error: ' + err.message;
+    statusEl.className = 'status-msg err';
+  }
+});
+
+/* ---------- Agentes ---------- */
+async function loadAgents(){
+  const tbody = document.querySelector('#agentsTable tbody');
+  tbody.innerHTML = '<tr><td colspan="7">Cargando…</td></tr>';
+  try {
+    const rows = await apiCall('/rest/v1/agents?select=*&order=name.asc');
+    tbody.innerHTML = rows.map(a => `
+      <tr data-id="${a.id}">
+        <td><input value="${a.name || ''}" data-field="name"></td>
+        <td><input value="${a.role || ''}" data-field="role"></td>
+        <td><input type="number" value="${a.sales_count || 0}" data-field="sales_count"></td>
+        <td><input type="number" value="${a.years_experience || 0}" data-field="years_experience"></td>
+        <td><input type="number" value="${a.satisfaction_pct || 0}" data-field="satisfaction_pct"></td>
+        <td><input value="${a.photo_url || ''}" data-field="photo_url"></td>
+        <td><div class="admin-row-actions">
+          <button class="admin-btn save-agent">Guardar</button>
+          <button class="admin-btn danger delete-agent">Borrar</button>
+        </div></td>
+      </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="7" style="color:#e08a8a;">Error cargando agentes: ${err.message}</td></tr>`;
+  }
+}
+
+document.querySelector('#agentsTable tbody').addEventListener('click', async (e) => {
+  const row = e.target.closest('tr');
+  if (!row) return;
+  const id = row.dataset.id;
+
+  if (e.target.classList.contains('save-agent')) {
+    const payload = {};
+    row.querySelectorAll('[data-field]').forEach(el => payload[el.dataset.field] = el.type === 'number' ? Number(el.value) : el.value);
+    try {
+      await apiCall(`/rest/v1/agents?id=eq.${id}`, { method: 'PATCH', headers: { 'Prefer': 'return=minimal' }, body: JSON.stringify(payload) });
+      e.target.textContent = 'Guardado ✓';
+      setTimeout(() => e.target.textContent = 'Guardar', 1500);
+    } catch (err) { alert('No se pudo guardar: ' + err.message); }
+  }
+
+  if (e.target.classList.contains('delete-agent')) {
+    if (!confirm('¿Borrar este agente? No se puede deshacer.')) return;
+    try {
+      await apiCall(`/rest/v1/agents?id=eq.${id}`, { method: 'DELETE' });
+      row.remove();
+    } catch (err) { alert('No se pudo borrar: ' + err.message); }
+  }
+});
+
+document.getElementById('showNewAgentForm').addEventListener('click', () => {
+  const form = document.getElementById('newAgentForm');
+  form.style.display = form.style.display === 'none' ? 'grid' : 'none';
+});
+
+document.getElementById('createAgentBtn').addEventListener('click', async () => {
+  const statusEl = document.getElementById('newAgentStatus');
+  const payload = {
+    slug: document.getElementById('na-slug').value.trim(),
+    name: document.getElementById('na-name').value.trim(),
+    role: document.getElementById('na-role').value.trim(),
+    sales_count: Number(document.getElementById('na-sales').value) || 0,
+    years_experience: Number(document.getElementById('na-years').value) || 0,
+    satisfaction_pct: Number(document.getElementById('na-satisfaction').value) || 0,
+    photo_url: document.getElementById('na-photo').value.trim() || null,
+  };
+  if (!payload.slug || !payload.name) {
+    statusEl.textContent = 'El slug y el nombre son obligatorios.';
+    statusEl.className = 'status-msg err';
+    return;
+  }
+  try {
+    await apiCall('/rest/v1/agents', { method: 'POST', headers: { 'Prefer': 'return=minimal' }, body: JSON.stringify(payload) });
+    statusEl.textContent = 'Agente creado ✓ — recuerda crear su página agente-' + payload.slug + '.html si aún no existe.';
+    statusEl.className = 'status-msg ok';
+    loadAgents();
+  } catch (err) {
+    statusEl.textContent = 'Error: ' + err.message;
+    statusEl.className = 'status-msg err';
+  }
+});
+
+/* ---------- Mensajes ---------- */
+async function loadMessages(){
+  const tbody = document.querySelector('#messagesTable tbody');
+  tbody.innerHTML = '<tr><td colspan="6">Cargando…</td></tr>';
+  try {
+    const rows = await apiCall('/rest/v1/contact_messages?select=*&order=created_at.desc');
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="6" style="color:var(--ivory-dim);">Todavía no han llegado mensajes.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map(m => `
+      <tr data-id="${m.id}">
+        <td>${new Date(m.created_at).toLocaleDateString('es-DO')}</td>
+        <td>${m.name}</td>
+        <td>${m.email}</td>
+        <td>${m.reason || '—'}</td>
+        <td style="max-width:260px; white-space:normal;">${m.message || '—'}</td>
+        <td><select data-field="status">
+          <option value="nuevo" ${m.status==='nuevo'?'selected':''}>Nuevo</option>
+          <option value="contactado" ${m.status==='contactado'?'selected':''}>Contactado</option>
+          <option value="cerrado" ${m.status==='cerrado'?'selected':''}>Cerrado</option>
+        </select></td>
+      </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="6" style="color:#e08a8a;">Error cargando mensajes: ${err.message}</td></tr>`;
+  }
+}
+
+document.querySelector('#messagesTable tbody').addEventListener('change', async (e) => {
+  if (e.target.dataset.field !== 'status') return;
+  const row = e.target.closest('tr');
+  try {
+    await apiCall(`/rest/v1/contact_messages?id=eq.${row.dataset.id}`, {
+      method: 'PATCH', headers: { 'Prefer': 'return=minimal' }, body: JSON.stringify({ status: e.target.value })
+    });
+  } catch (err) { alert('No se pudo actualizar el estado: ' + err.message); }
+});
+</script>
+</body>
+</html>
