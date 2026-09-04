@@ -87,6 +87,7 @@
     <div class="admin-tab active" data-tab="propiedades">Propiedades</div>
     <div class="admin-tab" data-tab="agentes">Agentes</div>
     <div class="admin-tab" data-tab="mensajes">Mensajes</div>
+    <div class="admin-tab" data-tab="contenido">Contenido</div>
   </div>
 
   <!-- Propiedades -->
@@ -145,6 +146,32 @@
     <div class="overflow-x">
       <table class="admin-table" id="messagesTable">
         <thead><tr><th>Fecha</th><th>Nombre</th><th>Correo</th><th>Motivo</th><th>Mensaje</th><th>Estado</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Contenido (textos e imágenes de cualquier página) -->
+  <div class="admin-panel" id="panel-contenido">
+    <p style="color:var(--ivory-dim); font-size:13px; margin-bottom:20px; max-width:60ch;">
+      Aquí editas los textos e imágenes de la Home. Para imágenes, pega la ruta del archivo
+      (ej. <code>assets/img/villa-aurelia/kitchen.jpg</code>) — todavía no hay subida directa de
+      archivos, así que primero la foto debe existir en el proyecto.
+    </p>
+    <button class="admin-btn" id="showNewContentForm" style="margin-bottom:20px;">+ Agregar contenido (otra página)</button>
+    <div class="new-row-form" id="newContentForm" style="display:none;">
+      <div><label>Página (slug)</label><input type="text" id="nc-page" placeholder="nosotros, contacto..."></div>
+      <div><label>Clave</label><input type="text" id="nc-key" placeholder="titulo_principal"></div>
+      <div><label>Tipo</label><select id="nc-type"><option value="text">Texto</option><option value="image">Imagen</option></select></div>
+      <div style="grid-column:1/-1;"><label>Valor</label><input type="text" id="nc-value"></div>
+      <div style="grid-column:1/-1; display:flex; gap:10px; align-items:center;">
+        <button class="admin-btn primary" id="createContentBtn">Crear</button>
+        <span class="status-msg" id="newContentStatus"></span>
+      </div>
+    </div>
+    <div class="overflow-x">
+      <table class="admin-table" id="contentTable">
+        <thead><tr><th>Página</th><th>Clave</th><th>Tipo</th><th>Valor</th><th></th></tr></thead>
         <tbody></tbody>
       </table>
     </div>
@@ -215,6 +242,7 @@ function showAdmin(){
   loadProperties();
   loadAgents();
   loadMessages();
+  loadContent();
 }
 
 if (getSession()) showAdmin();
@@ -430,6 +458,87 @@ document.querySelector('#messagesTable tbody').addEventListener('change', async 
       method: 'PATCH', headers: { 'Prefer': 'return=minimal' }, body: JSON.stringify({ status: e.target.value })
     });
   } catch (err) { alert('No se pudo actualizar el estado: ' + err.message); }
+});
+
+/* ---------- Contenido ---------- */
+async function loadContent(){
+  const tbody = document.querySelector('#contentTable tbody');
+  tbody.innerHTML = '<tr><td colspan="5">Cargando…</td></tr>';
+  try {
+    const rows = await apiCall('/rest/v1/site_content?select=*&order=page_slug.asc,content_key.asc');
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="5" style="color:var(--ivory-dim);">Todavía no hay contenido registrado.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map(c => `
+      <tr data-id="${c.id}">
+        <td>${c.page_slug}</td>
+        <td>${c.content_key}</td>
+        <td>${c.content_type === 'image' ? 'Imagen' : 'Texto'}</td>
+        <td><input value="${c.content_value.replace(/"/g, '&quot;')}" data-field="content_value"></td>
+        <td><div class="admin-row-actions">
+          <button class="admin-btn save-content">Guardar</button>
+          <button class="admin-btn danger delete-content">Borrar</button>
+        </div></td>
+      </tr>`).join('');
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="5" style="color:#e08a8a;">Error cargando contenido: ${err.message}</td></tr>`;
+  }
+}
+
+document.querySelector('#contentTable tbody').addEventListener('click', async (e) => {
+  const row = e.target.closest('tr');
+  if (!row) return;
+  const id = row.dataset.id;
+
+  if (e.target.classList.contains('save-content')) {
+    const value = row.querySelector('[data-field="content_value"]').value;
+    try {
+      await apiCall(`/rest/v1/site_content?id=eq.${id}`, {
+        method: 'PATCH', headers: { 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ content_value: value, updated_at: new Date().toISOString() })
+      });
+      e.target.textContent = 'Guardado ✓';
+      setTimeout(() => e.target.textContent = 'Guardar', 1500);
+    } catch (err) { alert('No se pudo guardar: ' + err.message); }
+  }
+
+  if (e.target.classList.contains('delete-content')) {
+    if (!confirm('¿Borrar esta entrada de contenido? Vuelve a mostrarse el texto/imagen por defecto del código.')) return;
+    try {
+      await apiCall(`/rest/v1/site_content?id=eq.${id}`, { method: 'DELETE' });
+      row.remove();
+    } catch (err) { alert('No se pudo borrar: ' + err.message); }
+  }
+});
+
+document.getElementById('showNewContentForm').addEventListener('click', () => {
+  const form = document.getElementById('newContentForm');
+  form.style.display = form.style.display === 'none' ? 'grid' : 'none';
+});
+
+document.getElementById('createContentBtn').addEventListener('click', async () => {
+  const statusEl = document.getElementById('newContentStatus');
+  const payload = {
+    page_slug: document.getElementById('nc-page').value.trim(),
+    content_key: document.getElementById('nc-key').value.trim(),
+    content_type: document.getElementById('nc-type').value,
+    content_value: document.getElementById('nc-value').value.trim(),
+  };
+  if (!payload.page_slug || !payload.content_key || !payload.content_value) {
+    statusEl.textContent = 'Página, clave y valor son obligatorios.';
+    statusEl.className = 'status-msg err';
+    return;
+  }
+  try {
+    await apiCall('/rest/v1/site_content', { method: 'POST', headers: { 'Prefer': 'return=minimal' }, body: JSON.stringify(payload) });
+    statusEl.textContent = 'Contenido creado ✓ — recuerda agregar data-content-key="' + payload.content_key + '" al elemento correspondiente en el HTML de esa página.';
+    statusEl.className = 'status-msg ok';
+    loadContent();
+  } catch (err) {
+    statusEl.textContent = 'Error: ' + err.message;
+    statusEl.className = 'status-msg err';
+  }
 });
 </script>
 </body>
